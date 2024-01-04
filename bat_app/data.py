@@ -1,27 +1,16 @@
 from django.shortcuts import render
 from .models import Assets, Profile, Posts, Articles,  Notifications, Comments, Explore, Interests
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib import auth
 import requests
-from django.db.models import Max
-from django.db import IntegrityError
-from django.db.models import Count
-import csv
 import io
 import requests
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from PIL import Image
-from polygon import RESTClient
 from datetime import datetime
-#from cairosvg import svg2png
-from django.utils import timezone
 import svglib
-from django.http import Http404
 import time
 
 def get_news(limit):
