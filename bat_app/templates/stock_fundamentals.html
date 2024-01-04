@@ -1,0 +1,157 @@
+{% extends 'stock_detail.html' %}
+{% load static %}
+
+
+{% block stock_detail %}
+<div class="stock__fundamentals">
+    <div class="stock__fundamentals-container">
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    Conversation Volume
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    132,749,827
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    Prev Close
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    $114.84
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    Open
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    $143.34
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    Dividend Yield
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    N/A
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    50 Day MA
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    $135.35
+                </p>
+            </span>
+        </div>
+
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    Beta
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    0.94
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                   Avg Volume
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    53,364,343.00
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    52 week high
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    $149.34
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    52 week low
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    $118.35
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                    PE Ratio
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    75.63
+                </p>
+            </span>
+        </div>
+        <div class="stock__fundamentals-item">
+            <span>
+                <p class="stock__fundamentals-item-title">
+                   EPS
+                </p>
+            </span>
+            <span>
+                <p class="stock__fundamentals-item-value">
+                    1.92
+                </p>
+            </span>
+        </div>
+        
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
+{% block title %} 
+  {{stock.name}} | MarketBat 
+{% endblock %}
+
+{% block fundamentals-active %}
+active
+{%endblock%}

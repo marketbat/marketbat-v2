@@ -1,0 +1,27 @@
+{% extends 'stock_detail.html' %}
+{% load static %}
+
+
+{% block stock_detail %}
+<div class="stock_detail-body__sentiment-insights">
+    <p>
+        Investors are currently optimistic about Apple Inc. (AAPL) as the company continues to showcase robust performance and resilience in the market. With a trailblazing track record of innovation and a diverse product portfolio, Apple remains at the forefront of the technology sector. The recent unveiling of cutting-edge products, such as the highly anticipated iPhone 13 and strong growth in services like Apple Music and the App Store, has bolstered confidence among shareholders.
+        <br> 
+        Additionally, Apple's solid financials, expanding ecosystem, and a forward-looking approach position it favorably for sustained growth. The company's commitment to sustainability and its strategic focus on augmented reality and wearable technology add further excitement to its prospects, making Apple a compelling choice for bullish investors.
+    </p>
+    
+</div>
+
+
+{% endblock %}
+
+
+
+
+{% block title %} 
+ {{ stock.name }} | MarketBat 
+{% endblock %}
+
+{% block insight-active %}
+active
+{%endblock%}

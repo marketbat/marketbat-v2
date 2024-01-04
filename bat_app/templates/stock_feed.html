@@ -1,0 +1,343 @@
+{% extends 'stock_detail.html' %}
+{% load static %}
+
+
+{% block stock_detail %}
+
+<div class="stock__feed__container">
+    <div class="stock__feed-top">
+        <div class="stock__feed-top__header">
+            <span class="user-profile-avatar">
+                {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="">
+                {% else %}
+                <img src="{% static 'images/user.png'%}" alt="">
+                {% endif %}
+            </span>
+            <span class="post__placeholder-text">
+                <textarea data-authenticated="true" id="post-feed-text" type="text" placeholder="What do you think about the market today ?"></textarea> 
+            </span>
+        </div>
+        <div  id="" class="post__image-preview">
+            <img src="" id="image-preview" alt="">
+        </div>
+        <div  id="" class="post__video-preview">
+            <video src="" id="video-preview" alt="" muted></video>
+        </div>
+        <div class="stock__feed__buttons">
+            
+            <div class="stock__feed__buttons-icons">
+               
+                <div id="emoji-picker" class="emoji-picker" style="display: none;"></div>
+                <i  data-authenticated="true" class='bx bx-smile'></i>
+                <div class="" data-field="message-image">
+                    <label for="post-image" class="edit-label"><i class='bx bxs-image-add'></i></label>
+                    <input data-authenticated="true" type="file" id="post-image" accept="image/*" name="post-image" style="font-size: 0; display: none;">
+                </div>
+                <div class="" data-field="message-image">
+                    <label for="post-video" class="edit-label"><i class='bx bx-video' ></i></label>
+                    <input data-authenticated="true" type="file" id="post-video" accept="video/*" name="post-video" style="font-size: 0; display: none;">
+                </div>
+                
+                
+            </div>
+            <button data-authenticated="true" id="post-feed-btn">Post</button>
+        </div>
+    </div>
+    <div class="stock__feeds-container">
+       
+            {% for post in posts %}
+            <div class="stock__feeds-item" id="post-{{post.id}}">
+                <div class="stock__feed-item_header">
+                    <div class="stock__feed-item_header-left">
+                        <span class="stock__feed-avatar">
+                            <a href="">
+                                {% if post.profile.profile_picture %}
+                                    <img src="{{ post.profile.profile_picture.url }}" alt="">
+                                {% else %}
+                                    <img src="{% static 'images/user.png'%}" alt="">
+                                {% endif %}
+                            </a>
+                        </span>
+                        <span class="stock__feed-name">
+                            <span class="stock__feed-name_symbol">
+                                <a href="">
+                                    {{post.profile.display_name}}
+                                </a>
+                            </span>
+                            <span class="stock__feed-badge"><i class='bx bxs-badge-check'></i></span>
+                            <span class="stock__feed-symbol">@{{post.profile.user}}</span>
+                            <span class="stock__feed-symbol">·</span>
+                            <span class="stock__feed-time time" data-post-timestamp="{{ post.post_date | date:'U' }}">{{ post.post_date }}</span>
+                        </span>
+                    </div>
+                    <div class="stock__feeds-item_header-right">
+                        <button class="stock__feed-sentiment  {% if post.post_sentiment == 'Bullish' %}positive-bg {% elif post.post_sentiment == 'Bearish' %}negative-bg{% else %}neutral-bg{% endif %}">{{post.post_sentiment}}</button>
+                    </div> 
+                </div>
+                <div class="stock__feeds-item_body">
+                    <p> 
+                        {{post.post_text}}
+                    </p>
+                   
+                    <span class="post_image">
+                        {% if post.post_image %}
+                            <img src="{{ post.post_image.url }}" alt="">
+                        {% endif %}
+                    </span> 
+                    <span class="post__video">
+                        {% if post.post_video %}
+                        <div class="video-container">
+                            <video id="post-video" src="{{ post.post_video.url }}" controls></video>
+                           
+                        </div>
+                        
+                        {% endif %}
+                    </span> 
+                </div>
+                <div class="stock__feed-item_footer">
+                    {% if profile in post.likes.all %}
+                    <span>
+                        <i data-authenticated="true"  data-post-id="{{ post.id }}" class='bx bxs-heart like' ></i>
+                        <p id="post-like-{{ post.id }}">{{post.likes.count}}</p>
+                    </span>
+                   
+                    {% else %}
+                    <span>
+                        <i data-authenticated="true"  data-post-id="{{ post.id }}" class='bx bx-heart like' ></i>
+                        <p id="post-like-{{ post.id }}">{{post.likes.count}}</p>
+                    </span>
+                   
+                    {% endif %}
+                    <span>
+                        <i data-authenticated="true" class='bx bx-comment-detail'></i>
+                        <p>{{ post.comments.count }}</p>
+                    </span>
+                  
+                </div>
+                <div class="stock__feed-item_comment">
+                    <input data-authenticated="true" class="post-comment-text" data-post-id="{{ post.id }}" type="text" placeholder="Comment..">
+                    <button data-authenticated="true"  class="post-comment-btn" data-post-id="{{ post.id }}"><i class='bx bxs-send'></i></button>
+               </div>
+                <div class="stock__feed-item_comment-box">
+                    {% if post.comments.all %}
+                        {% for comment in post.comments.all reversed%}
+                        <div class="stock__feed-item_header-left comment__head" id="{{comment.id}}">
+                            
+                                {% if comment.comment_author.profile_picture  %}
+                                <span class="stock__feed-avatar">
+                                    <a href="">
+                                        <img src="{{ comment.comment_author.profile_picture.url }}" alt="">
+                                    </a>
+                                </span>
+                                {% else %}
+                                <span class="stock__feed-avatar">
+                                    <a href="{% url 'user_profile' comment.comment_author.username %}">
+                                         <img src="{% static 'images/user.png'%}" alt="">
+                                    </a>
+                                </span>
+                                {% endif %}
+                         
+                            <div class="">
+                                <span class="stock__feed-name">
+                                    <span class="stock__feed-display-name">
+                                        <a href="">
+                                            {{comment.comment_author.display_name}}
+                                        </a>
+                                    </span>
+                                    <span class="stock__feed-badge"><i class='bx bxs-badge-check'></i></span>
+                                    <span class="stock__feed-username">@{{comment.comment_author.user}}</span>
+                                    <span class="stock__feed-symbol">·</span>
+                                    <span class="stock__feed-time time" data-post-timestamp="{{ comment.comment_date | date:'U' }}">{{ comment.comment_date }} ago</span>
+                                </span>
+                            </div>
+                        </div>
+                        <span class="post__comment-text">
+                            <p> 
+                                {{comment.comment_text}}
+                            </p>
+                        </span>
+                        {%  endfor %}
+                    {% else %}
+                    <div class="post__no-comments">
+                        <span>No comments yet.</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+    
+    </div>
+   
+</div>
+{% if not posts %}
+<div class="stock_feeds-no-posts">
+    <h3>No Posts Yet. </h3>
+</div>
+{% endif%}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    const postText = document.getElementById('post-feed-text');
+    const postImage = document.getElementById('post-image');
+    const postVideo = document.getElementById('post-video');
+    const postBtn = document.getElementById('post-feed-btn');
+  
+    postBtn.addEventListener("click", function () {
+        const formData = new FormData();
+        formData.append('text', postText.value);
+        formData.append('image', postImage.files[0]);
+        formData.append('video', postVideo.files[0]);
+        $.ajax({
+                  url: 'post',
+                  method: 'POST',
+                  data: formData, // Use the FormData object
+                  processData: false, // Don't process the data
+                  contentType: false, // Don't set content type (auto
+                  success: function (response) {
+                      if (response.message === 'success') {
+                          // Redirect or perform other actions for a successful login
+                          console.log("Posted successfully");
+                          window.location.reload()
+                      } else {
+                          console.log("Unexpected response:", response);
+                      }
+                  },
+                  error: function (xhr, status, error) {
+                      if (xhr.status === 400) {
+                          console.log("Post unsuccessful.");
+                      } else {
+                          console.log("Error:", status, error);
+                      }
+                  }
+                });
+    });
+  
+</script>
+  
+<script>
+// Function to handle file input change and update image preview
+function handleFileInputChange(inputElement, previewElement) {
+    const fileInput = inputElement;
+    const previewImage = previewElement;
+
+    fileInput.addEventListener("change", function () {
+        const file = fileInput.files[0];
+        const imagePreview = document.querySelector('.post__image-preview');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.style.display = "flex";
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+
+// Initialize image preview for profile photo
+const imageInput = document.getElementById("post-image");
+const imagePreview = document.getElementById("image-preview");
+handleFileInputChange(imageInput, imagePreview);
+</script>
+  
+<script>
+// Function to handle file input change and update image preview
+function handleFileVideoInputChange(inputElement, previewElement) {
+    const fileInput = inputElement;
+    const previewVideo = previewElement;
+
+    fileInput.addEventListener("change", function () {
+        const file = fileInput.files[0];
+        const videoPreview = document.querySelector('.post__video-preview');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                videoPreview.style.display = "flex";
+                previewVideo.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+
+// Initialize image preview for profile photo
+const videoInput = document.getElementById("post-video");
+const videoPreview = document.getElementById("video-preview");
+handleFileVideoInputChange(videoInput, videoPreview);
+</script>
+  
+<script>
+// Function to toggle the emoji picker visibility
+function toggleEmojiPicker() {
+    const emojiPicker = document.getElementById('emoji-picker');
+    emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+}
+
+// Function to insert the selected emoji into the post text field
+function insertEmoji(emojiObject) {
+console.log('Received emojiObject:', emojiObject);
+
+const postText = document.getElementById('post-feed-text'); // Replace with your post text field ID
+const emoji = emojiObject.unicode;
+console.log('Selected emoji:', emoji);
+
+postText.value += emoji; // Append the selected emoji to the current text
+toggleEmojiPicker(); // Hide the emoji picker
+}
+
+
+// Add a click event listener to the smile icon to show/hide the emoji picker
+const smileIcon = document.querySelector('.bx-smile'); // Replace with the correct selector
+smileIcon.addEventListener('click', toggleEmojiPicker);
+
+// Initialize the emoji picker
+const emojiPicker = document.getElementById('emoji-picker');
+emojiPicker.innerHTML = '<emoji-picker></emoji-picker>';
+emojiPicker.addEventListener('emoji-click', (event) => {
+    insertEmoji(event.detail.emoji);
+});
+</script>
+  
+<script>
+const viewCommentButtons = document.querySelectorAll('.bx-comment-detail');
+
+viewCommentButtons.forEach(function (viewCommentButton) {
+    viewCommentButton.addEventListener("click", function () {
+        // Find the common ancestor element
+        const commonAncestor = this.closest('.stock__feed-item_footer');
+        
+        if (commonAncestor) {
+            // Find the corresponding comment container
+            const commentContainer = commonAncestor.nextElementSibling.nextElementSibling;
+
+            // Toggle the comment container's visibility
+            if (commentContainer) {
+                if (commentContainer.style.display === 'none' || commentContainer.style.display === '') {
+                    commentContainer.style.display = 'block';
+                } else {
+                    commentContainer.style.display = 'none';
+                }
+            }
+        }
+    });
+});
+</script>
+
+
+{% endblock %}
+
+
+
+
+{% block title %} 
+  {{stock.name}} | MarketBat 
+{% endblock %}
+
+
+{% block feed-active %}
+active
+{%endblock%}

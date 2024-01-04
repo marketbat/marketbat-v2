@@ -1,0 +1,816 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+<div class="search-bar">
+    <input id="search_input" type="text" placeholder="Search for companies, transcripts, events, news e.t.c">
+</div>
+<div class="home__explore" >
+    
+    <div class="home__explore-section">
+        <div class="home__explore-section-daily-summary">
+            <span  style="display: none;">
+                🔔 It’s December, which means that as of today, you’re officially allowed to hang up Christmas lights without any judgment from your neighbors. We don’t make the rules: A survey of ~4,000 US homeowners found that Dec. 1 was the day most people identified as acceptable to put up Christmas lights.
+            </span>
+            <p id="daily_summary" >
+                
+            </p>
+        </div>
+        <div class="home__explore-section-trending-keywords">
+            <div class="trending-keywords-header">
+                <h3>Trending Keywords</h3>
+            </div>
+            <div class="trending-keywords-body">
+                <div class="trending-keywords__items">
+                    {% for trend in trending %}
+                    <div class="trending-keywords__item">
+                        <p>#{{trend.keyword}} </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="home__explore-section-screener">
+            <div class="home__explore-section-screener-header">
+                <h3>Explore Market Sentiment</h3>
+            </div>
+           
+            <div class="home__explore-section-screener-items">
+
+                {% for asset in screeners %}
+                <a href="{% url 'stock' asset.symbol %}">
+                    <div class="home__explore-section-screener-item">
+                        <div class="home__explore-section-screener-item-header">
+                            <p class="screen-item__symbol">
+                                {{ asset.name }}
+                            </p>
+                            <p class="screen-item__market-price">
+                                $1.133
+                            </p>
+                        </div>
+                        <div class="stock_detail-body__sentiment-container {{asset.results.sentiment_code}}">
+                            <div class="stock_detail-body__sentiment-center-point">
+                                <div class="stock_detail-body__sentiment-text">
+                                    {% if asset.results.sentiment_text %}
+                                    <p>{{asset.results.sentiment_text}}</p>
+                                    {% else %}
+                                    <p>N/A</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="stock_detail-body__sentiment-center-hide"></div>
+                            <div class="stock_detail-body__sentiment-bottom-hide"></div>
+                            
+                            <div class="stock_detail-body__sentiment-arrow-container">
+                                <div class="stock_detail-body__sentiment-arrow-wrapper {% if asset.results.sentiment_deg %}arrow-speed-{{asset.results.sentiment_deg}} {% else %} arrow-speed-90 {% endif %}">
+                                    <div class="stock_detail-body__sentiment-arrow">
+
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="stock_detail-body__sentiment-scale sentiment-scale-1"></div>
+                            <div class="stock_detail-body__sentiment-scale sentiment-scale-2"></div>
+                            <div class="stock_detail-body__sentiment-scale sentiment-scale-3"></div>
+                            <div class="stock_detail-body__sentiment-scale sentiment-scale-4"></div>
+                            <div class="stock_detail-body__sentiment-scale sentiment-scale-5"></div>
+                            <div class="stock_detail-body__sentiment-scale sentiment-scale-6"></div>
+                            <div class="stock_detail-body__sentiment-labels">
+                                <div class="stock_detail-body__sentiment-labels-item">
+                                    <span class="extremely-bearish-sentiment"></span>
+                                    <p>Extremely Bearish (0 - 25)</p>
+                                </div>
+                                <div class="stock_detail-body__sentiment-labels-item">
+                                    <span class="bearish-sentiment"></span>
+                                    <p>Slightly Bearish (25 - 45)</p>
+                                </div>
+                                <div class="stock_detail-body__sentiment-labels-item">
+                                    <span class="neutral-sentiment"></span>
+                                    <p>Neutral (45 - 55)</p>
+                                </div>
+                                <div class="stock_detail-body__sentiment-labels-item">
+                                    <span class="bullish-sentiment"></span>
+                                    <p>Slightly Bullish (55 - 75)</p>
+                                </div>
+                                <div class="stock_detail-body__sentiment-labels-item">
+                                    <span class="extremely-bullish-sentiment"></span>
+                                    <p>Extremely Bullish (75 - 100)</p>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        
+                    </div>
+                </a>
+            {% endfor %}
+            </div>
+            
+        </div>
+
+    </div>
+</div>
+
+
+<script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchInput = document.getElementById("search_assets");
+      const assetResultsContainer = document.querySelector(".sidebar_section-assets");
+      let initialResults; // Variable to store the initial state
+      initialResults = assetResultsContainer.innerHTML;
+
+      // Fetch the initial data when the page loads
+    
+      searchInput.addEventListener("input", function () {
+          const searchTerm = searchInput.value.trim();
+
+          if (searchTerm) {
+              // Update the results container with the fetch request
+              fetch(`/search/?q=${searchTerm}&type=company`)
+                  .then(response => response.json())
+                  .then(data => {
+                      console.log(data);
+                      updateResultsContainer(data);
+                  })
+                  .catch(error => {
+                      console.error('Error fetching search results:', error);
+                  });
+          } else {
+              // Restore the initial state when the search term is empty
+              assetResultsContainer.innerHTML = initialResults;
+          }
+
+          const newurl = new URL(window.location);
+          url.searchParams.set("search", searchTerm);
+          window.history.replaceState({}, "", newurl);
+      });
+
+      function showCompany(data) {
+          data.assets.forEach(asset => {
+              const assetElement = document.createElement('div');
+              assetElement.classList.add('search-result-asset');
+              assetElement.innerHTML = `
+                  <a href="/stock/${asset.symbol}">
+                      <div class="sidebar_section-asset">
+                          <img src="${asset.icon}" alt="">
+                          <p class="sidebar_section-asset-name">
+                            ${asset.name}
+                          </p>
+                          <p class="sidebar_section-asset-symbol" style="display: none;">
+                            ${asset.symbol}
+                          </p>
+                      </div>
+                  </a>`;
+              assetResultsContainer.appendChild(assetElement);
+          });
+      }
+
+      function updateResultsContainer(data) {
+          // Clear existing content in the results container
+          assetResultsContainer.innerHTML = '';
+          
+          // Iterate over articles and create HTML elements
+          showCompany(data);
+
+          if (data.assets.length === 0) {
+              assetResultsContainer.innerHTML = '<p class="no-search-results">No stocks found.</p>';
+              return;
+          }
+      }
+  });
+
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      console.log(width);
+      // Add your condition here
+      if (width < 1220) {
+          console.log("yess")
+          const searchInput = document.getElementById("search_assets_small");
+          const searchIcon = document.querySelector(".nav__search");
+          
+          const resultsContainer = document.querySelector(".search__results-container");
+          const resultsInnerContainer = document.querySelector(".search__results-container-results");
+          const mainContainer = document.querySelector('.home__explore');
+          const filterItems = document.querySelectorAll(".search__results-container-filter-item");
+          const searchKeyword = document.querySelector(".search_keyword");
+          const keywordItems = document.querySelectorAll('.trending-keywords__item');
+          const trendItems = document.querySelectorAll('.trending__assets-item');
+          
+      
+          keywordItems.forEach(keywordItem => {
+              keywordItem.addEventListener('click', function () {
+                  const keyword = this.textContent.trim().substring(1); // Remove '#' from the keyword
+                  searchInput.value = keyword;
+
+                  // Trigger the search functionality
+                  const searchEvent = new Event('input');
+                  searchInput.dispatchEvent(searchEvent);
+                  mainContainer.style.display = "none";
+                  resultsContainer.style.display = "block";
+              });
+          });
+
+          trendItems.forEach(trendItem => {
+              trendItem.addEventListener('click', function () {
+                  const keyword = this.querySelector('.trending__assets-item-keyword').textContent.trim(); // Use the trend__asset content as the keyword
+                  searchInput.value = keyword;
+
+                  // Trigger the search functionality
+                  const searchEvent = new Event('input');
+                  searchInput.dispatchEvent(searchEvent);
+              });
+          });
+
+          searchIcon.addEventListener('click', function () {
+            mainContainer.style.display = "none";
+            resultsContainer.style.display = "block";
+
+          });
+          searchInput.addEventListener("input", function () {
+
+              const searchTerm = searchInput.value.trim();
+              if (searchTerm) {
+              
+                // Update the search keyword
+                searchKeyword.textContent = searchTerm;
+
+                // Get the active filter type
+                const activeFilter = document.querySelector(".search__results-container-filter-item.active");
+                const filterType = activeFilter ? activeFilter.textContent.toLowerCase() : "all";
+
+                // Update the results container with the fetch request
+                fetch(`/search/?q=${searchTerm}&type=${filterType}`)
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log(data);
+                    updateResultsContainer(data, filterType);
+                  })
+                  .catch(error => {
+                    console.error('Error fetching search results:', error);
+                  });
+              } 
+
+              const url = new URL(window.location);
+              url.searchParams.set("search", searchTerm);
+              window.history.replaceState({}, "", url);
+            });
+          
+
+          filterItems.forEach((filterItem) => {
+            filterItem.addEventListener("click", function () {
+              // Remove the 'active' class from all filter items
+              filterItems.forEach((item) => item.classList.remove("active"));
+
+              // Add 'active' class to the clicked filter item
+              this.classList.add("active");
+
+              // Get the filter type (e.g., Company, News, Posts)
+              const filterType = this.textContent.trim().toLowerCase();
+
+              // Update the results container with the fetch request
+              const searchTerm = searchInput.value.trim();
+              fetch(`/search/?q=${searchTerm}&type=${filterType}`)
+                .then(response => response.json())
+                .then(data => {
+                  updateResultsContainer(data, filterType);
+                })
+                .catch(error => {
+                  console.error('Error fetching search results:', error);
+                });
+            });
+          });
+
+
+          function showCompany(data){
+            
+            data.assets.forEach(asset => {
+                const assetElement = document.createElement('div');
+                assetElement.classList.add('search-result-asset');
+                assetElement.innerHTML = `
+                    <a href="/stock/${asset.symbol}">
+                        <div class="search__results-container-company-item">
+                            <div class="search__results-container-company-item-left">
+                                <div class="search__results-container-company-item-logo">
+                                    <img src="${asset.icon}" alt="">
+                                </div>
+                                <div class="search__results-container-company-item-name">
+                                    <h3>${asset.symbol}</h3>
+                                    <p>${asset.name}</p>
+                                </div>
+                            </div>
+                            <div class="search__results-container-company-item-right">
+                                <i class='bx bx-alarm-add' ></i>
+                                <i class='bx bx-alarm'></i>
+                            </div>
+                        </div>
+                    </a>`;
+                resultsInnerContainer.appendChild(assetElement);
+              });
+          }
+
+          function showNews(data){
+            
+            data.articles.forEach(article => {
+                const articleElement = document.createElement('div');
+                articleElement.classList.add('search-result-article');
+                articleElement.innerHTML = `
+                    <a href="${article.article_link}">
+                        <div class="news__item">
+                            <div class="news__item-right">
+                                <div class="news__image">
+                                    <img src="${article.article_image}" alt="">
+                                </div>
+                            </div>
+                            <div class="news__item-left">
+                                <div class="news__item-title" id="title">${article.article_title}</div>
+                                <div class="news__item-subtitle" id="description">${article.article_description}</div>
+                                <div class="news__item-author">
+                                    ${article.article_publisher_logo ? `<img src="${article.article_publisher_logo.url}" alt="">` : ''}
+                                    <span>${article.article_publisher}</span>
+                                    <span>|</span>
+                                    <span class="time" data-post-timestamp="${article.article_date}">${article.article_date}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>`;
+                resultsInnerContainer.appendChild(articleElement);
+              });
+
+          }
+
+          function showPosts(data){
+            data.posts.forEach(post => {
+              const postElement = document.createElement('div');
+              postElement.classList.add('search-result-post');
+              postElement.innerHTML = `
+                  <a href="${post.url}">
+                      <div class="stock__feeds-item" id="post-${post.id}">
+                          <div class="stock__feed-item_header">
+                              <div class="stock__feed-item_header-left">
+                                  <span class="stock__feed-avatar">
+                                      <a href="">
+                                          ${post.profile.profile_picture ? `<img src="${post.profile.profile_picture.url}" alt="">` : `<img src="{% static 'images/user.png'%}" alt="">`}
+                                      </a>
+                                  </span>
+                                  <span class="stock__feed-name">
+                                      <span class="stock__feed-name_symbol">
+                                          <a href="">
+                                              ${post.profile.display_name}
+                                          </a>
+                                      </span>
+                                      <span class="stock__feed-badge"><i class='bx bxs-badge-check'></i></span>
+                                      <span class="stock__feed-symbol">@${post.profile.user}</span>
+                                      <span class="stock__feed-symbol">·</span>
+                                      <span class="stock__feed-time time" data-post-timestamp="${post.post_date}">${post.post_date}</span>
+                                  </span>
+                              </div>
+                              <div class="stock__feeds-item_header-right">
+                                  <button class="stock__feed-sentiment ${post.post_sentiment == 'Bullish' ? 'positive-bg' : 'negative-bg'}">${post.post_sentiment}</button>
+                              </div>
+                          </div>
+                          <div class="stock__feeds-item_body">
+                              <p>${post.post_text}</p>
+                              <span class="post_image">
+                                  ${post.post_image ? `<img src="${post.post_image.url}" alt="">` : ''}
+                              </span>
+                              <span class="post__video">
+                                  ${post.post_video ? `<div class="video-container"><video id="post-video" src="${post.post_video.url}" controls></video></div>` : ''}
+                              </span>
+                          </div>
+                          <div class="stock__feed-item_footer">
+                              ${profile in post.likes.all ? `
+                                  <span>
+                                      <i data-authenticated="true" data-post-id="${post.id}" class='bx bxs-heart like'></i>
+                                      <p id="post-like-${post.id}">${post.likes.count}</p>
+                                  </span>` : `
+                                  <span>
+                                      <i data-authenticated="true" data-post-id="${post.id}" class='bx bx-heart like'></i>
+                                      <p id="post-like-${post.id}">${post.likes.count}</p>
+                                  </span>`
+                              }
+                              <span>
+                                  <i data-authenticated="true" class='bx bx-comment-detail'></i>
+                                  <p>${post.comments.count}</p>
+                              </span>
+                          </div>
+                          <div class="stock__feed-item_comment">
+                              <input data-authenticated="true" class="post-comment-text" data-post-id="${post.id}" type="text" placeholder="Comment..">
+                              <button data-authenticated="true" class="post-comment-btn" data-post-id="${post.id}"><i class='bx bxs-send'></i></button>
+                          </div>
+                          <div class="stock__feed-item_comment-box">
+                              ${post.comments.all ? `
+                                  ${post.comments.all.map(comment => `
+                                      <div class="stock__feed-item_header-left comment__head" id="${comment.id}">
+                                          ${comment.comment_author.profile_picture ? `<span class="stock__feed-avatar"><a href=""><img src="${comment.comment_author.profile_picture.url}" alt=""></a></span>` : `<span class="stock__feed-avatar"><a href=""><img src="{% static 'images/user.png'%}" alt=""></a></span>`}
+                                          <div>
+                                              <span class="stock__feed-name">
+                                                  <span class="stock__feed-display-name">
+                                                      <a href="">
+                                                          ${comment.comment_author.display_name}
+                                                      </a>
+                                                  </span>
+                                                  <span class="stock__feed-badge"><i class='bx bxs-badge-check'></i></span>
+                                                  <span class="stock__feed-username">@${comment.comment_author.user}</span>
+                                                  <span class="stock__feed-symbol">·</span>
+                                                  <span class="stock__feed-time time" data-post-timestamp="${comment.comment_date}">${comment.comment_date} ago</span>
+                                              </span>
+                                          </div>
+                                      </div>
+                                      <span class="post__comment-text">
+                                          <p>${comment.comment_text}</p>
+                                      </span>
+                                  `).join('')}
+                              ` : `
+                                  <div class="post__no-comments">
+                                      <span>No comments yet.</span>
+                                  </div>`
+                              }
+                          </div>
+                      </div>
+                  </a>`;
+              resultsInnerContainer.appendChild(postElement);
+            });
+
+          }
+
+          function updateResultsContainer(data, filterType) {
+            // Clear existing content in the results container
+            resultsInnerContainer.innerHTML = '';
+
+            if (filterType == "all") {
+              
+              showCompany(data);
+              showNews(data);
+              showPosts(data);
+
+              if (data.articles.length === 0 && data.articles.length === 0 && data.posts.length === 0) {
+              resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found.</p>';
+              return;
+            }
+            }
+
+            // Iterate over articles and create HTML elements
+            if (filterType == "company") {
+              showCompany(data);
+
+              if (data.assets.length === 0) {
+              resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found for companies.</p>';
+              return;
+            }
+            }
+
+            // Iterate over posts and create HTML elements
+            if (filterType == "news") {
+              showNews(data);
+
+              if (data.articles.length === 0) {
+              resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found for news.</p>';
+              return;
+            }
+            }
+
+            // Iterate over posts and create HTML elements
+            if (filterType == "posts") {
+              showPosts(data);
+
+              if (data.posts.length === 0) {
+              resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found for posts.</p>';
+              return;
+            }
+            }
+
+            
+
+
+          }
+    } else {
+      const searchInput = document.getElementById("search_input");
+    const resultsContainer = document.querySelector(".search__results-container");
+    const resultsInnerContainer = document.querySelector(".search__results-container-results");
+    const mainContainer = document.querySelector('.home__explore');
+    const filterItems = document.querySelectorAll(".search__results-container-filter-item");
+    const searchKeyword = document.querySelector(".search_keyword");
+    const keywordItems = document.querySelectorAll('.trending-keywords__item');
+    const trendItems = document.querySelectorAll('.trending__assets-item');
+    
+
+    keywordItems.forEach(keywordItem => {
+        keywordItem.addEventListener('click', function () {
+            const keyword = this.textContent.trim().substring(1); // Remove '#' from the keyword
+            searchInput.value = keyword;
+
+            // Trigger the search functionality
+            const searchEvent = new Event('input');
+            searchInput.dispatchEvent(searchEvent);
+        });
+    });
+
+    trendItems.forEach(trendItem => {
+        trendItem.addEventListener('click', function () {
+            const keyword = this.querySelector('.trending__assets-item-keyword').textContent.trim(); // Use the trend__asset content as the keyword
+            searchInput.value = keyword;
+
+            // Trigger the search functionality
+            const searchEvent = new Event('input');
+            searchInput.dispatchEvent(searchEvent);
+        });
+    });
+
+    searchInput.addEventListener("input", function () {
+      const searchTerm = searchInput.value.trim();
+
+      if (searchTerm) {
+        mainContainer.style.display = "none";
+        resultsContainer.style.display = "block";
+
+        // Update the search keyword
+        searchKeyword.textContent = searchTerm;
+
+        // Get the active filter type
+        const activeFilter = document.querySelector(".search__results-container-filter-item.active");
+        const filterType = activeFilter ? activeFilter.textContent.toLowerCase() : "all";
+
+        // Update the results container with the fetch request
+        fetch(`/search/?q=${searchTerm}&type=${filterType}`)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            updateResultsContainer(data, filterType);
+          })
+          .catch(error => {
+            console.error('Error fetching search results:', error);
+          });
+      } else {
+        mainContainer.style.display = "block";
+        resultsContainer.style.display = "none";
+      }
+
+      const url = new URL(window.location);
+      url.searchParams.set("search", searchTerm);
+      window.history.replaceState({}, "", url);
+    });
+
+    filterItems.forEach((filterItem) => {
+      filterItem.addEventListener("click", function () {
+        // Remove the 'active' class from all filter items
+        filterItems.forEach((item) => item.classList.remove("active"));
+
+        // Add 'active' class to the clicked filter item
+        this.classList.add("active");
+
+        // Get the filter type (e.g., Company, News, Posts)
+        const filterType = this.textContent.trim().toLowerCase();
+
+        // Update the results container with the fetch request
+        const searchTerm = searchInput.value.trim();
+        fetch(`/search/?q=${searchTerm}&type=${filterType}`)
+          .then(response => response.json())
+          .then(data => {
+            updateResultsContainer(data, filterType);
+          })
+          .catch(error => {
+            console.error('Error fetching search results:', error);
+          });
+      });
+    });
+
+
+    function showCompany(data){
+      
+      data.assets.forEach(asset => {
+          const assetElement = document.createElement('div');
+          assetElement.classList.add('search-result-asset');
+          assetElement.innerHTML = `
+              <a href="/stock/${asset.symbol}">
+                  <div class="search__results-container-company-item">
+                      <div class="search__results-container-company-item-left">
+                          <div class="search__results-container-company-item-logo">
+                              <img src="${asset.icon}" alt="">
+                          </div>
+                          <div class="search__results-container-company-item-name">
+                              <h3>${asset.symbol}</h3>
+                              <p>${asset.name}</p>
+                          </div>
+                      </div>
+                      <div class="search__results-container-company-item-right">
+                          <i class='bx bx-alarm-add' ></i>
+                          <i class='bx bx-alarm'></i>
+                      </div>
+                  </div>
+              </a>`;
+          resultsInnerContainer.appendChild(assetElement);
+        });
+    }
+
+    function showNews(data){
+      
+      data.articles.forEach(article => {
+          const articleElement = document.createElement('div');
+          articleElement.classList.add('search-result-article');
+          articleElement.innerHTML = `
+              <a href="${article.article_link}">
+                  <div class="news__item">
+                      <div class="news__item-right">
+                          <div class="news__image">
+                              <img src="${article.article_image}" alt="">
+                          </div>
+                      </div>
+                      <div class="news__item-left">
+                          <div class="news__item-title" id="title">${article.article_title}</div>
+                          <div class="news__item-subtitle" id="description">${article.article_description}</div>
+                          <div class="news__item-author">
+                              ${article.article_publisher_logo ? `<img src="${article.article_publisher_logo.url}" alt="">` : ''}
+                              <span>${article.article_publisher}</span>
+                              <span>|</span>
+                              <span class="time" data-post-timestamp="${article.article_date}">${article.article_date}</span>
+                          </div>
+                      </div>
+                  </div>
+              </a>`;
+          resultsInnerContainer.appendChild(articleElement);
+        });
+
+    }
+
+    function showPosts(data){
+      data.posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.classList.add('search-result-post');
+        postElement.innerHTML = `
+            <a href="${post.url}">
+                <div class="stock__feeds-item" id="post-${post.id}">
+                    <div class="stock__feed-item_header">
+                        <div class="stock__feed-item_header-left">
+                            <span class="stock__feed-avatar">
+                                <a href="">
+                                    ${post.profile.profile_picture ? `<img src="${post.profile.profile_picture.url}" alt="">` : `<img src="{% static 'images/user.png'%}" alt="">`}
+                                </a>
+                            </span>
+                            <span class="stock__feed-name">
+                                <span class="stock__feed-name_symbol">
+                                    <a href="">
+                                        ${post.profile.display_name}
+                                    </a>
+                                </span>
+                                <span class="stock__feed-badge"><i class='bx bxs-badge-check'></i></span>
+                                <span class="stock__feed-symbol">@${post.profile.user}</span>
+                                <span class="stock__feed-symbol">·</span>
+                                <span class="stock__feed-time time" data-post-timestamp="${post.post_date}">${post.post_date}</span>
+                            </span>
+                        </div>
+                        <div class="stock__feeds-item_header-right">
+                            <button class="stock__feed-sentiment ${post.post_sentiment == 'Bullish' ? 'positive-bg' : 'negative-bg'}">${post.post_sentiment}</button>
+                        </div>
+                    </div>
+                    <div class="stock__feeds-item_body">
+                        <p>${post.post_text}</p>
+                        <span class="post_image">
+                            ${post.post_image ? `<img src="${post.post_image.url}" alt="">` : ''}
+                        </span>
+                        <span class="post__video">
+                            ${post.post_video ? `<div class="video-container"><video id="post-video" src="${post.post_video.url}" controls></video></div>` : ''}
+                        </span>
+                    </div>
+                    <div class="stock__feed-item_footer">
+                        ${profile in post.likes.all ? `
+                            <span>
+                                <i data-authenticated="true" data-post-id="${post.id}" class='bx bxs-heart like'></i>
+                                <p id="post-like-${post.id}">${post.likes.count}</p>
+                            </span>` : `
+                            <span>
+                                <i data-authenticated="true" data-post-id="${post.id}" class='bx bx-heart like'></i>
+                                <p id="post-like-${post.id}">${post.likes.count}</p>
+                            </span>`
+                        }
+                        <span>
+                            <i data-authenticated="true" class='bx bx-comment-detail'></i>
+                            <p>${post.comments.count}</p>
+                        </span>
+                    </div>
+                    <div class="stock__feed-item_comment">
+                        <input data-authenticated="true" class="post-comment-text" data-post-id="${post.id}" type="text" placeholder="Comment..">
+                        <button data-authenticated="true" class="post-comment-btn" data-post-id="${post.id}"><i class='bx bxs-send'></i></button>
+                    </div>
+                    <div class="stock__feed-item_comment-box">
+                        ${post.comments.all ? `
+                            ${post.comments.all.map(comment => `
+                                <div class="stock__feed-item_header-left comment__head" id="${comment.id}">
+                                    ${comment.comment_author.profile_picture ? `<span class="stock__feed-avatar"><a href=""><img src="${comment.comment_author.profile_picture.url}" alt=""></a></span>` : `<span class="stock__feed-avatar"><a href=""><img src="{% static 'images/user.png'%}" alt=""></a></span>`}
+                                    <div>
+                                        <span class="stock__feed-name">
+                                            <span class="stock__feed-display-name">
+                                                <a href="">
+                                                    ${comment.comment_author.display_name}
+                                                </a>
+                                            </span>
+                                            <span class="stock__feed-badge"><i class='bx bxs-badge-check'></i></span>
+                                            <span class="stock__feed-username">@${comment.comment_author.user}</span>
+                                            <span class="stock__feed-symbol">·</span>
+                                            <span class="stock__feed-time time" data-post-timestamp="${comment.comment_date}">${comment.comment_date} ago</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="post__comment-text">
+                                    <p>${comment.comment_text}</p>
+                                </span>
+                            `).join('')}
+                        ` : `
+                            <div class="post__no-comments">
+                                <span>No comments yet.</span>
+                            </div>`
+                        }
+                    </div>
+                </div>
+            </a>`;
+        resultsInnerContainer.appendChild(postElement);
+      });
+
+    }
+
+    function updateResultsContainer(data, filterType) {
+      // Clear existing content in the results container
+      resultsInnerContainer.innerHTML = '';
+
+      if (filterType == "all") {
+        
+        showCompany(data);
+        showNews(data);
+        showPosts(data);
+
+        if (data.articles.length === 0 && data.articles.length === 0 && data.posts.length === 0) {
+        resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found.</p>';
+        return;
+      }
+      }
+
+      // Iterate over articles and create HTML elements
+      if (filterType == "company") {
+        showCompany(data);
+
+        if (data.assets.length === 0) {
+        resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found for companies.</p>';
+        return;
+      }
+      }
+
+      // Iterate over posts and create HTML elements
+      if (filterType == "news") {
+        showNews(data);
+
+        if (data.articles.length === 0) {
+        resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found for news.</p>';
+        return;
+      }
+      }
+
+      // Iterate over posts and create HTML elements
+      if (filterType == "posts") {
+        showPosts(data);
+
+        if (data.posts.length === 0) {
+        resultsInnerContainer.innerHTML = '<p class="no-search-results">No results found for posts.</p>';
+        return;
+      }
+      }
+
+      
+
+
+    }
+
+
+
+    };
+
+      });
+    
+
+  </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+             // Get the text content of the p tag
+             console.log("typewriter");
+             const dailySummaryText = document.querySelector('.home__explore-section-daily-summary span').textContent;
+             new TypeIt("#daily_summary", {
+                 speed: 50,
+                 startDelay: 900,
+                 waitUntilVisible: true,
+             })
+                 .type(dailySummaryText, { speed: 50 })
+                 .go();
+               });
+     
+       </script>
+  
+  
+{% endblock %}
+
+
+
+
+{% block title %} 
+   Explore | MarketBat 
+{% endblock %}

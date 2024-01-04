@@ -1,0 +1,60 @@
+{% extends 'stock_detail.html' %}
+{% load static %}
+
+
+{% block stock_detail %}
+
+<div class="news__container-body">
+    <div class="news__items">
+        {% for news in articles %}
+            {% if news.article_image%}
+            <a href="{{news.article_link}}">
+                <div class="news__item">
+                    <div class="news__item-right">
+                        <div class="news__image">
+                            
+                            <img src="{{news.article_image}}" alt="">
+                        </div>
+                    </div>
+                    <div class="news__item-left">
+                        <div class="news__item-title" id="title">{{ news.article_title }}</div>
+                        <div class="news__item-subtitle" id="description">{{ news.article_description }}</div>                        
+                        <div class="news__item-author">
+                            {% if news.article_publisher_logo %}
+                            <img src="{{news.article_publisher_logo.url }}" alt="">
+                            {% endif %}
+                            <span>{{ news.article_publisher }}</span>
+                            <span>|</span>
+                            <span class="time" data-post-timestamp="{{ news.article_date | date:'U' }}">{{ news.article_date }}</span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </a>
+               
+            {% endif %}
+        {% endfor %}
+       
+    </div>
+
+
+</div>   
+{% if not articles %}
+<div class="stock_feeds-no-posts">
+    <h3>No News Yet. </h3>
+</div>
+{% endif%}
+
+
+{% endblock %}
+
+
+
+
+{% block title %} 
+  {{stock.name}} | MarketBat 
+{% endblock %}
+
+{% block news-active %}
+active
+{%endblock%}

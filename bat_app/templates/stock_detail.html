@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block main %}
+<div class="stock_detail">
+    <div class="stock_detail-header">   
+        <div class="stock_detail-header-left">
+            <div class="stock_detail-header-left__stock-logo">
+                {% if stock.icon %}
+                <img src="{{stock.icon.url}}" alt="">
+                {% else %}
+                <img src="{%  static 'images/stock.png'%}" alt="">
+                {% endif %}
+            </div>
+            <div class="">
+                <h2 class="stock_detail-header-left__stock-symbol">
+                    {{ stock.symbol }}
+                </h2>
+                <p class="stock_detail-header-left__stock-name">
+                    {{ stock.name }}
+                </p>
+            </div>
+          
+        </div>
+        <div class="stock_detail-header-right">
+            <p class="stock_detail-header-right__stock-price">
+                191.24
+            </p>
+            <div class="stock_detail-header-right__stock-price-change positive">
+                <i class='bx bx-up-arrow-alt stock_detail-header-right__stock-price-change-arrow'></i>
+                <span >
+                    <p>
+                        0.9200
+                    </p>
+                    <p>
+                        0.48%
+                    </p>
+                </span>
+            </div>
+
+        </div>
+    </div>
+    <div class="stock_detail-body">
+        <div class="stock_detail-body__sentiment">
+            <div class="stock_detail-body__sentiment-duration" id="durationContainer">
+                <span class="stock_detail-body__sentiment-duration-item active">
+                    1D
+                </span>
+                <span class="stock_detail-body__sentiment-duration-item">
+                    1W
+                </span>
+                <span class="stock_detail-body__sentiment-duration-item">
+                    1M
+                </span>
+                <span class="stock_detail-body__sentiment-duration-item">
+                    3M
+                </span>
+                <span class="stock_detail-body__sentiment-duration-item">
+                    6M
+                </span>
+                <span class="stock_detail-body__sentiment-duration-item">
+                    1Y
+                </span>
+                <span class="stock_detail-body__sentiment-duration-item">
+                    All
+                </span>
+            </div>
+            
+            <div class="stock_detail-body__sentiment-container {{results.sentiment_code}}">
+                <div class="stock_detail-body__sentiment-center-point">
+                    <div class="stock_detail-body__sentiment-text">
+                        {% if results.sentiment_text %}
+                        <p>{{results.sentiment_text}}</p>
+                        {% else %}
+                        <p>N/A</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stock_detail-body__sentiment-center-hide"></div>
+                <div class="stock_detail-body__sentiment-bottom-hide"></div>
+                
+                <div class="stock_detail-body__sentiment-arrow-container">
+                    <div class="stock_detail-body__sentiment-arrow-wrapper {% if results.sentiment_deg %}arrow-speed-{{results.sentiment_deg}} {% else %} arrow-speed-90 {% endif %}">
+                        <div class="stock_detail-body__sentiment-arrow">
+
+                        </div>
+                    </div>  
+                </div>
+                <div class="stock_detail-body__sentiment-scale sentiment-scale-1"></div>
+                <div class="stock_detail-body__sentiment-scale sentiment-scale-2"></div>
+                <div class="stock_detail-body__sentiment-scale sentiment-scale-3"></div>
+                <div class="stock_detail-body__sentiment-scale sentiment-scale-4"></div>
+                <div class="stock_detail-body__sentiment-scale sentiment-scale-5"></div>
+                <div class="stock_detail-body__sentiment-scale sentiment-scale-6"></div>
+                <div class="stock_detail-body__sentiment-labels">
+                    <div class="stock_detail-body__sentiment-labels-item">
+                        <span class="extremely-bearish-sentiment"></span>
+                        <p>Extremely Bearish (0 - 25)</p>
+                    </div>
+                    <div class="stock_detail-body__sentiment-labels-item">
+                        <span class="bearish-sentiment"></span>
+                        <p>Slightly Bearish (25 - 45)</p>
+                    </div>
+                    <div class="stock_detail-body__sentiment-labels-item">
+                        <span class="neutral-sentiment"></span>
+                        <p>Neutral (45 - 55)</p>
+                    </div>
+                    <div class="stock_detail-body__sentiment-labels-item">
+                        <span class="bullish-sentiment"></span>
+                        <p>Slightly Bullish (55 - 75)</p>
+                    </div>
+                    <div class="stock_detail-body__sentiment-labels-item">
+                        <span class="extremely-bullish-sentiment"></span>
+                        <p>Extremely Bullish (75 - 100)</p>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+        <div class="stock_detail-body__others">
+            <div class="stock_detail-body__others-header">
+                <div class="stock_detail-body__others-header-items">
+                    <div class="stock_detail-body__others-header-item">
+                        <a href="{% url 'stock' symbol=stock.symbol %}" class=" {% block insight-active %} {%endblock%}">
+                            Insight
+                        </a>
+                    </div>
+                    <div class="stock_detail-body__others-header-item">
+                        <a href="{% url 'stock_about' symbol=stock.symbol %}" class=" {% block about-active %} {%endblock%}">
+                            About
+                        </a>
+                    </div>
+                    <div class="stock_detail-body__others-header-item">
+                        <a href="{% url 'stock_feed' symbol=stock.symbol %}" class="{% block feed-active %} {%endblock%}">
+                            Feed
+                        </a>    
+                    </div>
+                    <div class="stock_detail-body__others-header-item">
+                        <a href="{% url 'stock_news' symbol=stock.symbol %}" class="{% block news-active %} {%endblock%}">
+                            News
+                        </a>
+                    </div>
+                    <div class="stock_detail-body__others-header-item">
+                        <a href="{% url 'stock_financials' symbol=stock.symbol %}" class="{% block fundamentals-active %} {%endblock%}">
+                            Financials
+                        </a>
+                    </div>        
+                </div>
+                
+            </div>
+            <div class="stock_detail-body__others-body">
+                {% block stock_detail %} {%endblock%}
+                
+            </div>
+        </div>
+
+    </div>
+   
+</div>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const marketCapElement = document.getElementById("marketCapValue");
+        const marketCapValue = parseFloat(marketCapElement.textContent);
+
+        function formatMarketCap(value) {
+            const suffixes = ["", "K", "M", "B", "T"];
+            let suffixIndex = 0;
+
+            while (value >= 1000 && suffixIndex < suffixes.length - 1) {
+                value /= 1000;
+                suffixIndex++;
+            }
+
+            return value.toFixed(2) + suffixes[suffixIndex];
+        }
+
+        marketCapElement.textContent = "$" + formatMarketCap(marketCapValue);
+    });
+</script>
+
+
+<!--=============== SCROLLREVEAL ===============-->
+<script src="{% static 'js/scrollreveal.min.js' %}" ></script>
+<script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
+<script>
+  function typeOutDailySummary() {
+      // Get the text content of the p tag
+      const dailySummaryText = document.querySelector('.home__explore-section-daily-summary span').textContent;
+      console.log("function called");
+      new TypeIt("#daily_summary", {
+          speed: 50,
+          startDelay: 900,
+          waitUntilVisible: true,
+      })
+          .type(dailySummaryText, { speed: 50 })
+          .go();
+  }
+
+</script>
+
+<script>
+    // JavaScript to rotate the pointer to a specific angle
+    const angle = 100; // Set the angle you want the pointer to point to
+    const pointer = document.querySelector('.pointer');
+    pointer.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the container
+        var durationContainer = document.getElementById('durationContainer');
+    
+        // Add a click event listener to the container
+        durationContainer.addEventListener('click', function(event) {
+            // Check if the clicked element is a span with the desired class
+            if (event.target.classList.contains('stock_detail-body__sentiment-duration-item')) {
+                // Get the text content of the clicked span
+                var selectedDuration = event.target.textContent.trim();
+    
+                // Send the text to the backend (you need to implement this part)
+                sendToBackend(selectedDuration);
+    
+                // Set the clicked span as active
+                setActiveSpan(event.target);
+            }
+        });
+    
+        // Function to send the selected duration to the backend
+        function sendToBackend(duration) {
+            // You need to implement the backend communication here
+            // You can use AJAX, Fetch API, or any other method to send the data to the backend
+            console.log('Sending to backend:', duration);
+            // Example using Fetch API
+            
+            fetch('/your-backend-endpoint', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ duration: duration }),
+            })
+            .then(response => response.json())
+            .then(data => console.log('Backend response:', data))
+            .catch(error => console.error('Error:', error));
+            
+        }
+    
+        // Function to set the clicked span as active
+        function setActiveSpan(clickedSpan) {
+            // Remove the 'active' class from all spans
+            var allSpans = durationContainer.querySelectorAll('.stock_detail-body__sentiment-duration-item');
+            allSpans.forEach(function(span) {
+                span.classList.remove('active');
+            });
+    
+            // Add the 'active' class to the clicked span
+            clickedSpan.classList.add('active');
+        }
+    });
+    </script>
+
+
+
+{% endblock %}
+
+
+
+
+{% block title %} 
+  MarketBat 
+{% endblock %}

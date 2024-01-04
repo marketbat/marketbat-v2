@@ -1,0 +1,50 @@
+{% extends 'stock_detail.html' %}
+{% load static %}
+
+
+{% block stock_detail %}
+<div class="stock_detail-body__about-body">
+    <p class="stock_detail-body__about-body-description">{{ stock.description }}</p>
+    <div class="stock_detail-body__about-body-details">
+        <div class="stock_detail-body__about-body-details-item">
+            <h3>Founded</h3>
+            <p>{{ stock.list_date }}</p>
+        </div>
+        <div class="stock_detail-body__about-body-details-item">
+            <h3>Market Cap</h3>
+            <p id="marketCapValue">{{ stock.market_cap }}</p>
+        </div>
+        <div class="stock_detail-body__about-body-details-item">
+            <h3>Exchange</h3>
+            <p>{{ stock.exchange }}</p>
+        </div>
+        <div class="stock_detail-body__about-body-details-item">
+            <h3>Website</h3>
+            <p>{{ stock.website }}</p>
+        </div>
+        <div class="stock_detail-body__about-body-details-item">
+            <h3>Address</h3>
+            <p>{{ stock.address }}, {{ stock.city }}, {{ stock.state }}, {{ stock.postal_code }}.  </p>
+        </div>
+
+        <div class="stock_detail-body__about-body-details-item">
+            <h3>Phone number</h3>
+            <p>{{ stock.phone_number }}</p>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
+{% block title %} 
+ {{ stock.name }} | MarketBat 
+{% endblock %}
+
+{% block about-active %}
+active
+{%endblock%}
