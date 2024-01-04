@@ -11,24 +11,11 @@ import requests
 from django.db.models import Max
 from django.db import IntegrityError
 from django.db.models import Count
-import csv
-import io
 import requests
-from io import BytesIO
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from PIL import Image
-from polygon import RESTClient
-from datetime import datetime
-#from cairosvg import svg2png
-from django.utils import timezone
-import svglib
-from django.http import Http404
-import time
 from django.views import View
 from django.db.models import Q
 from django.apps import apps
 from django.db import models
-import random
 
 
 @csrf_exempt
